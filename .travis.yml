@@ -1,0 +1,10 @@
+env:
+  - PR_URL=$(echo "https://github.com/$TRAVIS_PULL_REQUEST_SLUG.git")
+language: java
+script: echo ${PR_URL} | xargs asdf plugin-test elasticsearch
+before_script:
+  - git clone https://github.com/asdf-vm/asdf.git
+  - . asdf/asdf.sh
+os:
+  - linux
+  - osx

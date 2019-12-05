@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
-
-versions_list=(
-  2.3.4
-  1.7.5
-  1.6.2
-)
-
-versions=""
-
-for version in "${versions_list[@]}"
+releases_path=https://api.github.com/repos/elastic/elasticsearch/tags?per_page=100
+total_pages=$(curl -I $releases_path | awk -F'[=>]' '/Link:/ {print $(NF-2)}')
+current_page=1
+versions=''
+while [ $current_page -le $total_pages ]
 do
-  versions="${versions} ${version}"
+  versions+=$(curl -s "$releases_path&page=$current_page" | awk -F':' '/\"name\"\:/ {gsub(/\"v|\"|\,/,"",$2);print $2}')
+  current_page=$(( $current_page + 1 ))
 done
-
-echo $versions
+echo $versions | sort

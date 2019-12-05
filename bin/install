@@ -51,7 +51,7 @@ download_source() {
   local download_path=$3
   local download_url=$(get_download_url $install_type $version)
 
-  curl -sLo $download_path -C - $download_url
+  curl -SLfo $download_path -C - $download_url
 }
 
 
@@ -64,11 +64,24 @@ get_download_file_path() {
   echo "$tmp_download_dir/$pkg_name"
 }
 
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
 get_download_url() {
   local install_type=$1
   local version=$2
-  echo "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-$version.tar.gz"
+  local operating_system=$(uname -a)
+
+  if [ $(version $version) -ge $(version "7.0.0") ]; then
+    if [[ "$operating_system" =~ "Darwin" ]]; then
+      echo "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$version-darwin-x86_64.tar.gz"
+    else
+      echo "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$version-linux-x86_64.tar.gz"
+    fi
+  elif [ $(version $version) -gt $(version "2.4.6") ]; then
+    echo "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$version.tar.gz"
+  else
+    echo "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-$version.tar.gz"
+  fi
 }
 
 install_elasticsearch $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
