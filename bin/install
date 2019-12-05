@@ -51,7 +51,7 @@ download_source() {
   local download_path=$3
   local download_url=$(get_download_url $install_type $version)
 
-  curl -SLfo $download_path -C - $download_url
+  curl -SLfo $download_path $download_url
 }
 
 
@@ -79,8 +79,10 @@ get_download_url() {
     fi
   elif [ $(version $version) -gt $(version "2.4.6") ]; then
     echo "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$version.tar.gz"
-  else
+  elif [ $(version $version) -gt $(version "0.13.0") ]; then
     echo "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-$version.tar.gz"
+  else
+    echo "https://github.com/elastic/elasticsearch/archive/v$version.tar.gz"
   fi
 }
 
